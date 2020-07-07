@@ -62,7 +62,7 @@ namespace Kinect2 {
 class Device;
 
 ci::Channel8uRef									channel16To8( const ci::Channel16uRef& channel, uint8_t bytes = 4 );
-ci::Surface8uRef									colorizeBodyIndex( const ci::Channel8uRef& bodyIndexChannel );
+ci::Surface8uRef									colorizeBodyIndex( const ci::Channel8uRef& bodyIndexChannel, bool binaryMask = false );
 
 ci::Color8u											getBodyColor( size_t index );
 size_t												getDeviceCount();
@@ -405,6 +405,8 @@ protected:
 
 		void											start();
 		void											stop();
+
+		Process& operator=(Process&);
 	protected:
 		std::function<void ()>							mThreadCallback;
 

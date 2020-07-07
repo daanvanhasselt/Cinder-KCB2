@@ -75,24 +75,24 @@ Channel8uRef channel16To8( const Channel16uRef& channel, uint8_t bytes )
 	return channel8;
 }
 
-Surface8uRef colorizeBodyIndex( const Channel8uRef& bodyIndexChannel )
+Surface8uRef colorizeBodyIndex(const Channel8uRef& bodyIndexChannel, bool binaryMask)
 {
 	Surface8uRef surface;
-	if ( bodyIndexChannel ) {
-		surface = Surface8u::create( bodyIndexChannel->getWidth(), bodyIndexChannel->getHeight(), true, SurfaceChannelOrder::RGBA );
-		Channel8u::Iter iterChannel	= bodyIndexChannel->getIter();
-		Surface8u::Iter iterSurface	= surface->getIter();
-		while ( iterChannel.line() && iterSurface.line() ) {
-			while ( iterChannel.pixel() && iterSurface.pixel() ) {
-				size_t index				= (size_t)iterChannel.v();
-				ColorA8u color( getBodyColor( index ), 0xFF );
-				if ( index == 0 || index > BODY_COUNT ) {
-					color.a		= 0x00;
+	if (bodyIndexChannel) {
+		surface = Surface8u::create(bodyIndexChannel->getWidth(), bodyIndexChannel->getHeight(), true, SurfaceChannelOrder::RGBA);
+		Channel8u::Iter iterChannel = bodyIndexChannel->getIter();
+		Surface8u::Iter iterSurface = surface->getIter();
+		while (iterChannel.line() && iterSurface.line()) {
+			while (iterChannel.pixel() && iterSurface.pixel()) {
+				size_t index = (size_t)iterChannel.v();
+				ColorA8u color(binaryMask ? Color8u(0xFF, 0xFF, 0xFF) : getBodyColor(index), 0xFF);
+				if (index > BODY_COUNT) {
+					color.a = 0x00;
 				}
-				iterSurface.r()	= color.r;
-				iterSurface.g()	= color.g;
-				iterSurface.b()	= color.b;
-				iterSurface.a()	= color.a;
+				iterSurface.r() = color.r;
+				iterSurface.g() = color.g;
+				iterSurface.b() = color.b;
+				iterSurface.a() = color.a;
 			}
 		}
 	}
@@ -742,7 +742,7 @@ const vector<Face3d>& Face3dFrame::getFaces() const
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 Device::Process::Process()
-: mNewData( atomic<bool>( false ) ), mRunning( atomic<bool>( false ) ), 
+: mNewData( false ), mRunning( false ), 
 mThreadCallback( nullptr )
 {
 }
@@ -769,6 +769,12 @@ void Device::Process::stop()
 		mThread->join();
 		mThread.reset();
 	}
+}
+
+Device::Process& Device::Process::operator=(Device::Process&)
+{
+	Process p;
+	return p;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
