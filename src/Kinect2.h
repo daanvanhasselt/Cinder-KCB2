@@ -44,6 +44,7 @@
 #include "cinder/Rect.h"
 #include "cinder/Surface.h"
 #include "cinder/TriMesh.h"
+#include "cinder/Signals.h"
 #include <atomic>
 #include <functional>
 #include <map>
@@ -545,6 +546,7 @@ protected:
 	Device();
 
 	virtual void										update();
+	ci::signals::Connection								mUpdateConnection;
 
 	uint8_t												isSensorOpen() const;
 	KCBHANDLE											mKinect;
